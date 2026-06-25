@@ -23,4 +23,3 @@ urlpatterns = [
     path('', todo_views.index, name='index'),
 ]
 
-
