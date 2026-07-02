@@ -9,7 +9,7 @@ services:
     name: riku-the-special
     env: python
     plan: free
-    branch: maina
+    branch: main
     buildCommand: "./build.sh"
     startCommand: "gunicorn config.wsgi:application"
     envVars:
