@@ -1,0 +1,35 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <title>To Do Application</title>
+    <meta charset="UTF-8">
+    <meta name="author" content="INIAD">
+    <link rel="stylesheet" href="{% static 'todo/styles.css' %}">
+</head>
+
+<body>
+    <h1>Settings</h1>
+    <p>Choose how the task list should be arranged.</p>
+    <div class="settings-panel">
+        <p class="settings-state">
+            Current layout:
+            {% if layout == horizontal_layout %}
+            Horizontal
+            {% else %}
+            Vertical
+            {% endif %}
+        </p>
+        <form action="{% url 'settings' %}" method="post" class="settings-form">
+            {% csrf_token %}
+            <button type="submit" name="layout" value="{{ vertical_layout }}">Vertical</button>
+            <button type="submit" name="layout" value="{{ horizontal_layout }}">Horizontal</button>
+        </form>
+    </div>
+    <div>
+        <a href="{% url 'index' %}">Top</a>
+    </div>
+</body>
+
+</html>

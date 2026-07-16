@@ -57,6 +57,7 @@ class TodoViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.templates[0].name, 'todo/index.html')
         self.assertEqual(len(response.context['tasks']), 0)
+        self.assertEqual(response.context['layout'], 'vertical')
 
     def test_index_post(self):
         client = Client()
@@ -91,6 +92,21 @@ class TodoViewTestCase(TestCase):
         self.assertEqual(response.context['tasks'][0], task1)
         self.assertEqual(response.context['tasks'][1], task2)
 
+    def test_settings_view(self):
+        client = Client()
+        response = client.get('/settings/')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.templates[0].name, 'todo/settings.html')
+        self.assertEqual(response.context['layout'], 'vertical')
+
+    def test_settings_post_horizontal(self):
+        client = Client()
+        response = client.post('/settings/', {'layout': 'horizontal'})
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/settings/')
+
+        response = client.get('/')
+        self.assertEqual(response.context['layout'], 'horizontal')
     def test_update_get_success(self):
         task = Task(title='task1', due_at=timezone.make_aware(datetime(2024, 7, 1)))
         task.save()
