@@ -23,6 +23,17 @@
             <input id="dueInput" name="due_at" type="datetime-local" value="{{ task.due_at |date:" Y-m-d H:i" }}">
         </div>
         <div>
+            <label for="ratingInput">Rating</label><br>
+            <select id="ratingInput" name="rating">
+                <option value="0" {% if task.rating == 0 %}selected{% endif %}>未評価</option>
+                <option value="1" {% if task.rating == 1 %}selected{% endif %}>★☆☆☆☆</option>
+                <option value="2" {% if task.rating == 2 %}selected{% endif %}>★★☆☆☆</option>
+                <option value="3" {% if task.rating == 3 %}selected{% endif %}>★★★☆☆</option>
+                <option value="4" {% if task.rating == 4 %}selected{% endif %}>★★★★☆</option>
+                <option value="5" {% if task.rating == 5 %}selected{% endif %}>★★★★★</option>
+            </select>
+        </div>
+        <div>
             <button type="submit">Submit</button>
         </div>
     </form>
