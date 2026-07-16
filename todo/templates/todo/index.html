@@ -10,8 +10,13 @@
 </head>
 
 <body>
-    <h1>Sample To Do Application</h1>
-    <p>You can submit tasks from the following form.</p>
+    <header class="page-header">
+        <div>
+            <h1>Sample To Do Application</h1>
+            <p>You can submit tasks from the following form.</p>
+        </div>
+        <a class="settings-link" href="{% url 'settings' %}">Settings</a>
+    </header>
     <form action="{% url 'index' %}" method="post">
         {% csrf_token %}
         <div>
@@ -32,22 +37,24 @@
         <a href="{% url 'index' %}?order=post">Sort by Posted Date</a>
     </div>
 
-    {% for task in tasks %}
-    <div class="text">
-        <h2><a href="{% url 'detail' task.id %}">{{ task.title }}</a></h2>
-        <ul>
-            <li>Posted at: {{ task.posted_at }}</li>
-            {% if task.due_at %}
-            <li>Due at: {{ task.due_at }}</li>
-            {% endif %}
-            {% if task.completed %}
-            <li>Status: Completed</li>
-            {% else %}
-            <li>Status: Not Completed</li>
-            {% endif %}
-        </ul>
-    </div>
-    {% endfor %}
+    <section class="task-board task-board--{{ layout }}">
+        {% for task in tasks %}
+        <div class="text task-card">
+            <h2><a href="{% url 'detail' task.id %}">{{ task.title }}</a></h2>
+            <ul>
+                <li>Posted at: {{ task.posted_at }}</li>
+                {% if task.due_at %}
+                <li>Due at: {{ task.due_at }}</li>
+                {% endif %}
+                {% if task.completed %}
+                <li>Status: Completed</li>
+                {% else %}
+                <li>Status: Not Completed</li>
+                {% endif %}
+            </ul>
+        </div>
+        {% endfor %}
+    </section>
 </body>
 
 </html>

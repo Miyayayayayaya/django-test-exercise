@@ -94,6 +94,36 @@ body>.text {
     margin-right: auto;
 }
 
+.page-header {
+    width: min(100%, 1200px);
+    margin: 0 auto 12px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.page-header h1,
+.page-header p {
+    margin-left: 0;
+    margin-right: 0;
+    width: auto;
+}
+
+.page-header p {
+    margin-bottom: 0;
+}
+
+.settings-link {
+    flex: 0 0 auto;
+    margin-top: 6px;
+    padding: 10px 16px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: var(--shadow);
+}
+
 body>p {
     margin-top: 0;
     margin-bottom: 24px;
@@ -191,6 +221,65 @@ li {
     border-left: 4px solid var(--accent);
 }
 
+.task-board {
+    width: min(100%, 1200px);
+    margin: 20px auto 0;
+}
+
+.task-board--vertical {
+    display: grid;
+    gap: 20px;
+}
+
+.task-board--horizontal {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(280px, 340px);
+    gap: 20px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 10px;
+    scroll-snap-type: x proximity;
+}
+
+.task-board--horizontal .task-card {
+    scroll-snap-align: start;
+}
+
+.task-board--horizontal .task-card h2 {
+    overflow-wrap: anywhere;
+}
+
+.settings-panel {
+    width: min(100%, 760px);
+    margin: 20px auto 0;
+    padding: 22px;
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent), var(--panel);
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(14px);
+}
+
+.settings-state {
+    margin-top: 0;
+}
+
+.settings-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 0;
+    margin: 16px 0 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.settings-form button {
+    min-width: 160px;
+}
+
 .text h2 {
     margin-bottom: 12px;
 }
@@ -240,5 +329,23 @@ body>div a:hover {
 
     body>div a+a {
         margin-left: 0;
+    }
+
+    .page-header {
+        flex-direction: column;
+    }
+
+    .task-board--horizontal .task-card {
+        min-width: 280px;
+    }
+
+    .settings-panel {
+        padding: 18px;
+        border-radius: 16px;
+    }
+
+    .settings-form button {
+        min-width: 0;
+        flex: 1 1 140px;
     }
 }

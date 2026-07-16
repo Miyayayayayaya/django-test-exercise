@@ -5,6 +5,18 @@ from django.utils.dateparse import parse_datetime
 from todo.models import Task
 
 
+LAYOUT_VERTICAL = 'vertical'
+LAYOUT_HORIZONTAL = 'horizontal'
+LAYOUT_SESSION_KEY = 'todo_layout'
+
+
+def get_layout(request):
+    layout = request.session.get(LAYOUT_SESSION_KEY, LAYOUT_VERTICAL)
+    if layout not in {LAYOUT_VERTICAL, LAYOUT_HORIZONTAL}:
+        return LAYOUT_VERTICAL
+    return layout
+
+
 def index(request):
     if request.method == 'POST':
         task = Task(title=request.POST['title'],
@@ -17,9 +29,25 @@ def index(request):
         tasks = Task.objects.order_by('-posted_at')
 
     context = {
-        'tasks': tasks
+        'tasks': tasks,
+        'layout': get_layout(request),
     }
     return render(request, 'todo/index.html', context)
+
+
+def settings(request):
+    if request.method == 'POST':
+        layout = request.POST.get('layout', LAYOUT_VERTICAL)
+        if layout in {LAYOUT_VERTICAL, LAYOUT_HORIZONTAL}:
+            request.session[LAYOUT_SESSION_KEY] = layout
+        return redirect('settings')
+
+    context = {
+        'layout': get_layout(request),
+        'vertical_layout': LAYOUT_VERTICAL,
+        'horizontal_layout': LAYOUT_HORIZONTAL,
+    }
+    return render(request, 'todo/settings.html', context)
 
 
 def detail(request, task_id):
