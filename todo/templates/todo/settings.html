@@ -1,6 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" style="--theme-hue: {{ theme_hue }};">
 
 <head>
     <title>To Do Application</title>
@@ -11,7 +11,7 @@
 
 <body>
     <h1>Settings</h1>
-    <p>Choose how the task list should be arranged.</p>
+    <p>Choose how the task list should be arranged and tune the theme color.</p>
     <div class="settings-panel">
         <p class="settings-state">
             Current layout:
@@ -27,9 +27,83 @@
             <button type="submit" name="layout" value="{{ horizontal_layout }}">Horizontal</button>
         </form>
     </div>
+    <div class="settings-panel theme-panel">
+        <div>
+            <p class="settings-state">
+                Current theme:
+                <span data-theme-readout>Balanced {{ theme_tone }}%</span>
+            </p>
+            <p class="settings-help">Slide left for cooler colors and right for warmer colors.</p>
+        </div>
+        <form action="{% url 'settings' %}" method="post" class="theme-form" data-theme-form>
+            {% csrf_token %}
+            <div class="theme-control">
+                <label for="themeTone">Theme color</label>
+                <input id="themeTone" class="theme-range" data-theme-slider type="range" min="0" max="100" step="1"
+                    name="theme_tone" value="{{ theme_tone }}">
+                <div class="theme-scale" aria-hidden="true">
+                    <span>Cool</span>
+                    <span>Warm</span>
+                </div>
+            </div>
+        </form>
+    </div>
     <div>
         <a href="{% url 'index' %}">Top</a>
     </div>
+    <script>
+        (() => {
+            const root = document.documentElement;
+            const slider = document.querySelector('[data-theme-slider]');
+            const readout = document.querySelector('[data-theme-readout]');
+            const form = document.querySelector('[data-theme-form]');
+            const csrfToken = form ? form.querySelector('input[name="csrfmiddlewaretoken"]') : null;
+            let saveTimer = null;
+
+            const toneToHue = (tone) => Math.round(200 - (tone * 180 / 100));
+            const toneToLabel = (tone) => {
+                if (tone < 35) {
+                    return 'Cool';
+                }
+                if (tone > 65) {
+                    return 'Warm';
+                }
+                return 'Balanced';
+            };
+
+            const syncTheme = (rawTone, persist) => {
+                const tone = Math.max(0, Math.min(100, Number(rawTone)));
+                root.style.setProperty('--theme-hue', String(toneToHue(tone)));
+                if (readout) {
+                    readout.textContent = `${toneToLabel(tone)} ${tone}%`;
+                }
+                if (!persist || !form || !csrfToken) {
+                    return;
+                }
+                window.clearTimeout(saveTimer);
+                saveTimer = window.setTimeout(() => {
+                    const body = new URLSearchParams();
+                    body.set('theme_tone', String(tone));
+                    body.set('csrfmiddlewaretoken', csrfToken.value);
+                    fetch(form.action, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                        body: body.toString(),
+                    });
+                }, 100);
+            };
+
+            if (slider) {
+                syncTheme(slider.value, false);
+                slider.addEventListener('input', (event) => {
+                    syncTheme(event.target.value, true);
+                });
+            }
+        })();
+    </script>
 </body>
 
 </html>

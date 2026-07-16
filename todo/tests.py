@@ -106,6 +106,22 @@ class TodoViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.templates[0].name, 'todo/settings.html')
         self.assertEqual(response.context['layout'], 'vertical')
+        self.assertEqual(response.context['theme_tone'], 100)
+
+    def test_settings_post_theme_tone(self):
+        client = Client()
+        response = client.post(
+            '/settings/',
+            {'theme_tone': '0'},
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['theme_tone'], 0)
+        self.assertEqual(response.json()['theme_hue'], 200)
+
+        response = client.get('/settings/')
+        self.assertEqual(response.context['theme_tone'], 0)
+        self.assertEqual(response.context['theme_hue'], 200)
 
     def test_settings_post_horizontal(self):
         client = Client()
