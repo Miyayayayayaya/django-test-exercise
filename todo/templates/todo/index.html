@@ -28,6 +28,17 @@
             <input id="dueInput" name="due_at" type="datetime-local">
         </div>
         <div>
+            <label for="ratingInput">Rating</label><br>
+            <select id="ratingInput" name="rating">
+                <option value="0">未評価</option>
+                <option value="1">★☆☆☆☆</option>
+                <option value="2">★★☆☆☆</option>
+                <option value="3">★★★☆☆</option>
+                <option value="4">★★★★☆</option>
+                <option value="5">★★★★★</option>
+            </select>
+        </div>
+        <div>
             <button type="submit">Submit</button>
         </div>
     </form>
@@ -46,6 +57,7 @@
                 {% if task.due_at %}
                 <li>Due at: {{ task.due_at }}</li>
                 {% endif %}
+                <li>Rating: {{ task.rating_display }}</li>
                 {% if task.completed %}
                 <li>Status: Completed</li>
                 {% else %}

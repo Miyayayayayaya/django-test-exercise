@@ -1,3 +1,4 @@
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils import timezone
 
@@ -8,8 +9,20 @@ class Task(models.Model):
     completed = models.BooleanField(default=False)
     posted_at = models.DateTimeField(default=timezone.now)
     due_at = models.DateTimeField(null=True, blank=True)
+    rating = models.PositiveSmallIntegerField(
+        default=0,
+        validators=[MinValueValidator(0), MaxValueValidator(5)],
+    )
 
     def is_overdue(self, dt):
         if self.due_at is None:
             return False
         return self.due_at < dt
+
+    @property
+    def rating_display(self):
+        if self.rating <= 0:
+            return '未評価'
+        full_stars = '★' * self.rating
+        empty_stars = '☆' * (5 - self.rating)
+        return f'{full_stars}{empty_stars}'

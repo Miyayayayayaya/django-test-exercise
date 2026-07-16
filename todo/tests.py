@@ -67,6 +67,14 @@ class TodoViewTestCase(TestCase):
         self.assertEqual(response.templates[0].name, 'todo/index.html')
         self.assertEqual(len(response.context['tasks']), 1)
 
+    def test_index_post_with_rating(self):
+        client = Client()
+        data = {'title': 'task1', 'due_at': '2024-06-30 23:59:59', 'rating': '5'}
+        response = client.post('/', data)
+        self.assertEqual(response.status_code, 200)
+        task = Task.objects.get(title='task1')
+        self.assertEqual(task.rating, 5)
+
     def test_index_get_order_post(self):
         task1 = Task(title='task1', due_at=timezone.make_aware(datetime(2024, 7, 1)))
         task1.save()

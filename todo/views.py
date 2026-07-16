@@ -17,10 +17,25 @@ def get_layout(request):
     return layout
 
 
+def _parse_rating(raw_value):
+    if raw_value in {None, ''}:
+        return 0
+    try:
+        rating = int(raw_value)
+    except (TypeError, ValueError):
+        return 0
+    return max(0, min(5, rating))
+
+
 def index(request):
     if request.method == 'POST':
-        task = Task(title=request.POST['title'],
-                    due_at=make_aware(parse_datetime(request.POST['due_at'])))
+        due_value = request.POST.get('due_at')
+        due_at = make_aware(parse_datetime(due_value)) if due_value else None
+        task = Task(
+            title=request.POST['title'],
+            due_at=due_at,
+            rating=_parse_rating(request.POST.get('rating')),
+        )
         task.save()
 
     if request.GET.get('order') == 'due':
@@ -70,7 +85,9 @@ def update(request, task_id):
 
     if request.method == 'POST':
         task.title = request.POST['title']
-        task.due_at = make_aware(parse_datetime(request.POST['due_at']))
+        due_value = request.POST.get('due_at')
+        task.due_at = make_aware(parse_datetime(due_value)) if due_value else None
+        task.rating = _parse_rating(request.POST.get('rating'))
         task.save()
         return redirect(detail, task_id)
 
