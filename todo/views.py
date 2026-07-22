@@ -1,5 +1,5 @@
+from django.http import Http404, JsonResponse
 from django.shortcuts import render, redirect
-from django.http import Http404
 from django.utils.timezone import make_aware
 from django.utils.dateparse import parse_datetime
 from todo.models import Task
@@ -8,6 +8,10 @@ from todo.models import Task
 LAYOUT_VERTICAL = 'vertical'
 LAYOUT_HORIZONTAL = 'horizontal'
 LAYOUT_SESSION_KEY = 'todo_layout'
+THEME_TONE_SESSION_KEY = 'todo_theme_tone'
+THEME_TONE_DEFAULT = 100
+THEME_HUE_COOL = 200
+THEME_HUE_WARM = 20
 
 
 def get_layout(request):
@@ -15,6 +19,33 @@ def get_layout(request):
     if layout not in {LAYOUT_VERTICAL, LAYOUT_HORIZONTAL}:
         return LAYOUT_VERTICAL
     return layout
+
+
+def _parse_theme_tone(raw_value):
+    if raw_value in {None, ''}:
+        return THEME_TONE_DEFAULT
+    try:
+        tone = int(raw_value)
+    except (TypeError, ValueError):
+        return THEME_TONE_DEFAULT
+    return max(0, min(100, tone))
+
+
+def get_theme_tone(request):
+    return _parse_theme_tone(request.session.get(THEME_TONE_SESSION_KEY, THEME_TONE_DEFAULT))
+
+
+def get_theme_hue(request):
+    tone = get_theme_tone(request)
+    return round(THEME_HUE_COOL - ((THEME_HUE_COOL - THEME_HUE_WARM) * tone / 100))
+
+
+def get_theme_context(request):
+    tone = get_theme_tone(request)
+    return {
+        'theme_tone': tone,
+        'theme_hue': round(THEME_HUE_COOL - ((THEME_HUE_COOL - THEME_HUE_WARM) * tone / 100)),
+    }
 
 
 def _parse_rating(raw_value):
@@ -47,11 +78,19 @@ def index(request):
         'tasks': tasks,
         'layout': get_layout(request),
     }
+    context.update(get_theme_context(request))
     return render(request, 'todo/index.html', context)
 
 
 def settings(request):
     if request.method == 'POST':
+        if 'theme_tone' in request.POST:
+            theme_tone = _parse_theme_tone(request.POST.get('theme_tone'))
+            request.session[THEME_TONE_SESSION_KEY] = theme_tone
+            return JsonResponse({
+                'theme_tone': theme_tone,
+                'theme_hue': round(THEME_HUE_COOL - ((THEME_HUE_COOL - THEME_HUE_WARM) * theme_tone / 100)),
+            })
         layout = request.POST.get('layout', LAYOUT_VERTICAL)
         if layout in {LAYOUT_VERTICAL, LAYOUT_HORIZONTAL}:
             request.session[LAYOUT_SESSION_KEY] = layout
@@ -62,6 +101,7 @@ def settings(request):
         'vertical_layout': LAYOUT_VERTICAL,
         'horizontal_layout': LAYOUT_HORIZONTAL,
     }
+    context.update(get_theme_context(request))
     return render(request, 'todo/settings.html', context)
 
 
@@ -74,6 +114,7 @@ def detail(request, task_id):
     context = {
         'task': task,
     }
+    context.update(get_theme_context(request))
     return render(request, 'todo/detail.html', context)
 
 
@@ -94,6 +135,7 @@ def update(request, task_id):
     context = {
         'task': task
     }
+    context.update(get_theme_context(request))
     return render(request, "todo/edit.html", context)
 
 def delete(request, task_id):
